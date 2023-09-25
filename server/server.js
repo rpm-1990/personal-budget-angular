@@ -52,6 +52,9 @@ const data = [
 app.get('/budget', (req, res) => {
     res.json(budget);
 });
+app.get('/data',(req,res) => {
+    res.json(data);
+});
 
 app.listen(port, () => {
     console.log(`API served at http://localhost:${port}`);
