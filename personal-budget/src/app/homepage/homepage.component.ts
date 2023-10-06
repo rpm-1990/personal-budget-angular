@@ -19,10 +19,14 @@ export class HomepageComponent implements AfterViewInit {
             {
                 data: this.data,
                 backgroundColor: [
-                    '#ffcd56',
-                    '#ff6384',
-                    '#36a2eb',
-                    '#fd6b19',
+                  '#ffcd56',
+                  '#ff0000',
+                  '#0000ff',
+                  '#4d5791',
+                  '#a52a2a',
+                  '#8a2be2',
+                  '#ffebcd',
+                  '#deb887',
                 ]
             }
         ],
@@ -37,6 +41,71 @@ export class HomepageComponent implements AfterViewInit {
       });
   }
 
+created3chart() {
+  const width = 300;
+  const height = 300;
+  const radius = Math.min(width, height) / 2;
+
+  const color = d3.scaleOrdinal<string>()
+    .domain(this.labels.map(label => label.toString()))
+    .range(['#ffcd56',
+                  '#ff0000',
+                  '#0000ff',
+                  '#4d5791',
+                  '#a52a2a',
+                  '#8a2be2',
+                  '#ffebcd',
+                  '#deb887',]);
+
+  const svg = d3.select('#d3Chart')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .append('g')
+    .attr('transform', `translate(${width / 2},${height / 2})`);
+
+  const arc = d3.arc()
+    .innerRadius(radius - 70)
+    .outerRadius(radius);
+
+  const pie = d3.pie<number>()
+    .value((d: any) => d)
+    .sort(null);
+
+  const data = pie(this.data);
+
+  const path = svg.selectAll('path')
+    .data(data)
+    .enter()
+    .append('path')
+    .attr('d', (d: any) => arc(d) as string) // <-- Cast to string
+    .attr('fill', (d: any) => color(d.data.toString())); // <-- Convert to string
+
+  // Add labels with polylines
+  const labelArc = d3.arc()
+    .innerRadius(radius - 40)
+    .outerRadius(radius - 40);
+
+  const labels = svg.selectAll('text')
+    .data(data)
+    .enter()
+    .append('text')
+    .attr('transform', (d: any) => `translate(${labelArc.centroid(d as d3.DefaultArcObject)})`)
+    .attr('dy', '.35em')
+    .attr('text-anchor', 'middle')
+    .text(d => d.data);
+    const polyline = svg.selectAll('polyline')
+  .data(data)
+  .enter()
+  .append('polyline')
+  .attr('points', (d: any) => {
+    const pos = labelArc.centroid(d);
+    return [arc.centroid(d), labelArc.centroid(d), pos].join(' ');
+  });
+
+}
+
+
   constructor(private http: HttpClient, private dataService: DataService) {}
 
   ngAfterViewInit(): void {
@@ -46,64 +115,10 @@ export class HomepageComponent implements AfterViewInit {
           this.dataSource.datasets[0].data[i] = res.myBudget[i].budget;
           this.dataSource.labels[i] = res.myBudget[i].title;
         }
+        console.log('dataSource::',this.dataSource);
         this.createChart();
-      })
-      this.dataService.fetchDataIfNeeded(); // Fetch data if needed
+         this.created3chart();
 
-    this.dataService.getData().subscribe((data: any[]) => {
-      if(data.length > 0){
-        this.createSvg()
-        this.drawBars(data);
-      }
-    });
-  }
-
-  public svg: any;
-  public margin = 50;
-  public width = 550 - (this.margin * 2);
-  public height = 350 - (this.margin * 2);
-  public createSvg(): void {
-      this.svg = d3.select("figure#bar")
-      .append("svg")
-      .attr("width", this.width + (this.margin * 2))
-      .attr("height", this.height + (this.margin * 2))
-      .append("g")
-      .attr("transform", "translate(" + this.margin + "," + this.margin + ")");
-  }
-
-  public drawBars(data: any[]): void {
-    // Create the X-axis band scale
-    const x = d3.scaleBand()
-    .range([0, this.width])
-    .domain(data.map(d => d.Framework))
-    .padding(0.2);
-
-    // Draw the X-axis on the DOM
-    this.svg.append("g")
-    .attr("transform", "translate(0," + this.height + ")")
-    .call(d3.axisBottom(x))
-    .selectAll("text")
-    .attr("transform", "translate(-10,0)rotate(-45)")
-    .style("text-anchor", "end");
-
-    // Create the Y-axis band scale
-    const y = d3.scaleLinear()
-    .domain([0, 200000])
-    .range([this.height, 0]);
-
-    // Draw the Y-axis on the DOM
-    this.svg.append("g")
-    .call(d3.axisLeft(y));
-
-    // Create and fill the bars
-    this.svg.selectAll("bars")
-    .data(data)
-    .enter()
-    .append("rect")
-    .attr("x", (d: any) => x(d.Framework))
-    .attr("y", (d: any) => y(d.Stars))
-    .attr("width", x.bandwidth())
-    .attr("height", (d: any) => this.height - y(d.Stars))
-    .attr("fill", "#d04a35");
+      });
   }
 }
