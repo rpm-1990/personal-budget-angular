@@ -19,14 +19,7 @@ export class HomepageComponent implements AfterViewInit {
             {
                 data: this.data,
                 backgroundColor: [
-                  '#ffcd56',
-                  '#ff0000',
-                  '#0000ff',
-                  '#4d5791',
-                  '#a52a2a',
-                  '#8a2be2',
-                  '#ffebcd',
-                  '#deb887',
+                  '#ffcd56', '#ff0000', '#0000ff', '#4d5791', '#a52a2a', '#8a2be2', '#ffebcd'
                 ]
             }
         ],
@@ -48,14 +41,7 @@ created3chart() {
 
   const color = d3.scaleOrdinal<string>()
     .domain(this.labels.map(label => label.toString()))
-    .range(['#ffcd56',
-                  '#ff0000',
-                  '#0000ff',
-                  '#4d5791',
-                  '#a52a2a',
-                  '#8a2be2',
-                  '#ffebcd',
-                  '#deb887',]);
+    .range(['#ffcd56', '#ff0000', '#0000ff', '#4d5791', '#a52a2a', '#8a2be2', '#ffebcd']);
 
   const svg = d3.select('#d3Chart')
     .append('svg')
