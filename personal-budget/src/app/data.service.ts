@@ -11,7 +11,7 @@ export class DataService {
   constructor(private http: HttpClient) {}
   fetchDataIfNeeded(): void {
     if (this.data.length === 0) {
-      this.http.get('http://localhost:3000/data').subscribe((response: any) => {
+      this.http.get('http://localhost:3000/budget').subscribe((response: any) => {
         this.data = response; // Store the fetched data
         this.dataSubject.next(this.data); // Update the BehaviorSubject
       });
